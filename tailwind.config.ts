@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        body: ['Poppins', 'sans-serif'],
+        headline: ['"Playfair Display"', 'serif'],
         code: ['monospace'],
       },
       colors: {
@@ -55,6 +55,10 @@ export default {
           '4': 'hsl(var(--chart-4))',
           '5': 'hsl(var(--chart-5))',
         },
+        'leafy-green': {
+          DEFAULT: 'hsl(var(--leafy-green))',
+          foreground: 'hsl(var(--leafy-green-foreground))',
+        },
         sidebar: {
           DEFAULT: 'hsl(var(--sidebar-background))',
           foreground: 'hsl(var(--sidebar-foreground))',
@@ -70,6 +74,10 @@ export default {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
+      },
+      boxShadow: {
+        'subtle': '0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03)',
+        'md': '0 6px 10px -1px rgba(0,0,0,0.07), 0 4px 6px -2px rgba(0,0,0,0.05)',
       },
       keyframes: {
         'accordion-down': {
