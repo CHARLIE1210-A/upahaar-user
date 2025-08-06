@@ -22,7 +22,7 @@ export default function SideNavigationBar() {
       <div className="flex items-center justify-center h-20 border-b">
         <Link href="/" className="flex items-center gap-2">
           <Gift className="h-8 w-8 text-primary" />
-          <span className="text-3xl font-bold font-headline text-primary">GiftGenie</span>
+          <span className="text-3xl font-bold font-headline text-primary">Upahaar</span>
         </Link>
       </div>
       <nav className="flex-grow p-4 space-y-2">

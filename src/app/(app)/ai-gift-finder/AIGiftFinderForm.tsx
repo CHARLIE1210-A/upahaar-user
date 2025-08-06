@@ -61,7 +61,7 @@ export default function AIGiftFinderForm() {
       <Card className="shadow-lg rounded-lg">
         <CardHeader className="text-center">
           <Wand2 className="mx-auto h-12 w-12 text-primary mb-2" />
-          <CardTitle className="text-3xl font-headline font-bold text-foreground">AI Gift Genie</CardTitle>
+          <CardTitle className="text-3xl font-headline font-bold text-foreground">AI Upahaar</CardTitle>
           <CardDescription className="text-muted-foreground">
             Let our AI help you find the perfect gift! Fill in the details below.
           </CardDescription>

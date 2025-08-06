@@ -4,7 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Providers from '@/components/Providers';
 
 export const metadata: Metadata = {
-  title: 'GiftGenie',
+  title: 'Upahaar',
   description: 'Find unique, personalized gifts with a seamless delivery experience.',
 };
 

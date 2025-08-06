@@ -19,7 +19,7 @@ export default function Header({ onMenuClick, isMobile }: HeaderProps) {
         )}
         <Link href="/" className="flex items-center gap-2">
           <Gift className="h-7 w-7 text-primary" />
-          <span className="text-2xl font-bold font-headline text-primary">GiftGenie</span>
+          <span className="text-2xl font-bold font-headline text-primary">Upahaar</span>
         </Link>
         <div className="flex items-center gap-2">
           <Link href="/profile">
