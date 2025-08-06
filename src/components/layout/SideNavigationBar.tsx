@@ -3,64 +3,61 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Home, Package, ShoppingCart, User, Bot, Gift, LogOut } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { SidebarHeader, SidebarContent, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarFooter } from '@/components/ui/sidebar';
 
 const navItems = [
-  { href: '/home', label: 'Home', icon: Home },
-  { href: '/ai-gift-finder', label: 'AI Gift Finder', icon: Bot },
-  { href: '/cart', label: 'Shopping Cart', icon: ShoppingCart },
-  { href: '/orders', label: 'My Orders', icon: Package },
-  { href: '/profile', label: 'User Profile', icon: User },
+  { href: '/home', label: 'Home', icon: Home, tooltip: 'Home' },
+  { href: '/ai-gift-finder', label: 'AI Gift Finder', icon: Bot, tooltip: 'AI Gift Finder' },
+  { href: '/cart', label: 'Shopping Cart', icon: ShoppingCart, tooltip: 'Cart' },
+  { href: '/orders', label: 'My Orders', icon: Package, tooltip: 'Orders' },
+  { href: '/profile', label: 'User Profile', icon: User, tooltip: 'Profile' },
 ];
 
 export default function SideNavigationBar() {
   const pathname = usePathname();
 
-  const noNavPaths = ['/login'];
-
-  if (noNavPaths.includes(pathname)) {
-    return null;
-  }
-
   return (
-    <aside className="hidden md:flex md:flex-col md:w-64 border-r bg-background shadow-sm fixed h-full">
-      <div className="flex items-center justify-center h-20 border-b">
+    <>
+      <SidebarHeader>
         <Link href="/" className="flex items-center gap-2">
           <Gift className="h-8 w-8 text-primary" />
-          <span className="text-3xl font-bold font-headline text-primary">Upahaar</span>
+          <span className="text-2xl font-bold font-headline text-primary group-data-[collapsible=icon]:hidden">Upahaar</span>
         </Link>
-      </div>
-      <nav className="flex-grow p-4 space-y-2">
-        {navItems.map((item) => {
-          const isActive = item.href === '/home' 
-            ? pathname === '/' || pathname === '/home'
-            : pathname.startsWith(item.href);
-          return (
-            <Link key={item.href} href={item.href} legacyBehavior>
-              <a
-                className={cn(
-                  'flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-primary text-primary-foreground shadow-subtle'
-                    : 'text-foreground hover:bg-accent hover:text-accent-foreground'
-                )}
-              >
-                <item.icon className="h-5 w-5" />
-                <span>{item.label}</span>
-              </a>
-            </Link>
-          );
-        })}
-      </nav>
-       <div className="p-4 border-t">
-          <Button variant="outline" className="w-full" asChild>
-            <Link href="/login">
-              <LogOut className="mr-2 h-4 w-4" />
-              Logout
-            </Link>
-          </Button>
-        </div>
-    </aside>
+      </SidebarHeader>
+
+      <SidebarContent>
+        <SidebarMenu>
+          {navItems.map((item) => {
+            const isActive = item.href === '/home' 
+              ? pathname === '/' || pathname === '/home'
+              : pathname.startsWith(item.href);
+            return (
+              <SidebarMenuItem key={item.href}>
+                <Link href={item.href} passHref legacyBehavior>
+                    <SidebarMenuButton tooltip={item.tooltip} isActive={isActive}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                    </SidebarMenuButton>
+                </Link>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarContent>
+
+       <SidebarFooter>
+          <SidebarMenu>
+             <SidebarMenuItem>
+                <Link href="/login" passHref legacyBehavior>
+                    <SidebarMenuButton tooltip="Logout">
+                         <LogOut />
+                        <span>Logout</span>
+                    </SidebarMenuButton>
+                </Link>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
+    </>
   );
 }

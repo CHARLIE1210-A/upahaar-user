@@ -6,6 +6,7 @@ import BottomNavigationBar from './BottomNavigationBar';
 import SideNavigationBar from './SideNavigationBar';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { usePathname } from 'next/navigation';
+import { Sidebar, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
@@ -29,14 +30,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </>
       ) : (
         <div className="flex">
-          <SideNavigationBar />
-          <div className="flex flex-col flex-grow md:ml-64"> {/* ml-64 for side nav clearance */}
-            {/* Header can be omitted here if SideNav includes it, or a different header can be used */}
-            {/* <Header isMobile={isMobile} /> */}
-            <main className="flex-grow p-6">
-              {children}
-            </main>
-          </div>
+          <Sidebar variant="inset" collapsible="icon">
+            <SideNavigationBar />
+          </Sidebar>
+          <SidebarInset>
+            <div className="p-6">
+                <div className="flex items-center gap-2 mb-4">
+                    <SidebarTrigger />
+                    <h2 className="text-xl font-semibold">Upahaar</h2>
+                </div>
+                {children}
+            </div>
+          </SidebarInset>
         </div>
       )}
     </div>
