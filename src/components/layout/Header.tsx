@@ -1,26 +1,56 @@
 import Link from 'next/link';
-import { Gift, UserCircle } from 'lucide-react';
+import { Gift, UserCircle, Home, ShoppingCart, Package, Bot } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
+
+
+const navItems = [
+  { href: '/home', label: 'Home', icon: Home },
+  { href: '/ai-gift-finder', label: 'AI Finder', icon: Bot },
+  { href: '/cart', label: 'Cart', icon: ShoppingCart },
+  { href: '/orders', label: 'Orders', icon: Package },
+];
+
 
 interface HeaderProps {
-  onMenuClick?: () => void; // For mobile sidebar toggle
   isMobile?: boolean;
 }
 
-export default function Header({ onMenuClick, isMobile }: HeaderProps) {
+export default function Header({ isMobile }: HeaderProps) {
+    const pathname = usePathname();
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
       <div className="container flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
-        {isMobile && onMenuClick && (
-          <Button variant="ghost" size="icon" onClick={onMenuClick} className="md:hidden text-primary">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-            <span className="sr-only">Toggle Menu</span>
-          </Button>
-        )}
         <Link href="/" className="flex items-center gap-2">
           <Gift className="h-7 w-7 text-primary" />
           <span className="text-2xl font-bold font-headline text-primary">Upahaar</span>
         </Link>
+        
+        {!isMobile && (
+            <nav className="hidden md:flex gap-6 items-center">
+                 {navItems.map((item) => {
+                    const isActive = item.href === '/home' 
+                        ? pathname === '/' || pathname === '/home'
+                        : pathname.startsWith(item.href);
+
+                    return (
+                        <Link
+                        key={item.href}
+                        href={item.href}
+                        className={cn(
+                            'text-sm font-medium transition-colors',
+                            isActive ? 'text-primary font-semibold' : 'text-muted-foreground hover:text-foreground'
+                        )}
+                        >
+                        {item.label}
+                        </Link>
+                    );
+                })}
+            </nav>
+        )}
+
         <div className="flex items-center gap-2">
           <Link href="/profile">
             <Button variant="ghost" size="icon" className="text-primary hover:text-accent-foreground">
