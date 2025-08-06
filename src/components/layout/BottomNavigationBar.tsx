@@ -6,7 +6,7 @@ import { Home, Package, ShoppingCart, User, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/', label: 'Home', icon: Home },
+  { href: '/home', label: 'Home', icon: Home },
   { href: '/ai-gift-finder', label: 'AI Finder', icon: Bot },
   { href: '/cart', label: 'Cart', icon: ShoppingCart },
   { href: '/orders', label: 'Orders', icon: Package },
@@ -15,12 +15,21 @@ const navItems = [
 
 export default function BottomNavigationBar() {
   const pathname = usePathname();
+  const noNavPaths = ['/login'];
+
+  if (noNavPaths.includes(pathname)) {
+    return null;
+  }
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-subtle md:hidden">
       <div className="container mx-auto flex h-16 max-w-md items-center justify-around px-2">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          // Special case for root to also match /home
+          const isActive = item.href === '/home' 
+            ? pathname === '/' || pathname === '/home'
+            : pathname.startsWith(item.href);
+
           return (
             <Link
               key={item.href}

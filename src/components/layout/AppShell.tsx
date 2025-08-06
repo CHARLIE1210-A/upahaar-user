@@ -5,9 +5,17 @@ import Header from './Header';
 import BottomNavigationBar from './BottomNavigationBar';
 import SideNavigationBar from './SideNavigationBar';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { usePathname } from 'next/navigation';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
+  const pathname = usePathname();
+  const noNavPaths = ['/login'];
+
+  if (noNavPaths.includes(pathname)) {
+    return <>{children}</>;
+  }
+
 
   return (
     <div className="flex flex-col min-h-screen">

@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Home, Package, ShoppingCart, User, Bot, Gift } from 'lucide-react';
+import { Home, Package, ShoppingCart, User, Bot, Gift, LogOut } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 
 const navItems = [
-  { href: '/', label: 'Home', icon: Home },
+  { href: '/home', label: 'Home', icon: Home },
   { href: '/ai-gift-finder', label: 'AI Gift Finder', icon: Bot },
   { href: '/cart', label: 'Shopping Cart', icon: ShoppingCart },
   { href: '/orders', label: 'My Orders', icon: Package },
@@ -16,6 +16,12 @@ const navItems = [
 
 export default function SideNavigationBar() {
   const pathname = usePathname();
+
+  const noNavPaths = ['/login'];
+
+  if (noNavPaths.includes(pathname)) {
+    return null;
+  }
 
   return (
     <aside className="hidden md:flex md:flex-col md:w-64 border-r bg-background shadow-sm fixed h-full">
@@ -27,7 +33,9 @@ export default function SideNavigationBar() {
       </div>
       <nav className="flex-grow p-4 space-y-2">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const isActive = item.href === '/home' 
+            ? pathname === '/' || pathname === '/home'
+            : pathname.startsWith(item.href);
           return (
             <Link key={item.href} href={item.href} legacyBehavior>
               <a
@@ -46,8 +54,11 @@ export default function SideNavigationBar() {
         })}
       </nav>
        <div className="p-4 border-t">
-          <Button variant="outline" className="w-full">
-            Logout (mock)
+          <Button variant="outline" className="w-full" asChild>
+            <Link href="/login">
+              <LogOut className="mr-2 h-4 w-4" />
+              Logout
+            </Link>
           </Button>
         </div>
     </aside>
