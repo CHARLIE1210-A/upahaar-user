@@ -52,10 +52,10 @@ export default function Header({ isMobile }: HeaderProps) {
         )}
 
         <div className="flex items-center gap-2">
-          <Link href="/profile">
+          <Link href="/login">
             <Button variant="ghost" size="icon" className="text-primary hover:text-accent-foreground">
               <UserCircle className="h-6 w-6" />
-              <span className="sr-only">Profile</span>
+              <span className="sr-only">Login</span>
             </Button>
           </Link>
         </div>
