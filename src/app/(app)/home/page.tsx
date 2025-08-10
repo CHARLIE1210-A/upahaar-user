@@ -1,16 +1,45 @@
+'use client';
+
 import Image from 'next/image';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import ProductCard from '@/components/gifts/ProductCard';
 import { MOCK_PRODUCTS, MOCK_OCCASIONS } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, ChevronRight } from 'lucide-react';
+import axios from "axios";
 
 export default function HomePage() {
-  const aiRecommendations = MOCK_PRODUCTS.slice(0, 4);
-  const featuredGifts = MOCK_PRODUCTS.slice(1, 5).reverse();
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const token = localStorage.getItem("token"); // Get token from storage
+
+        const response = await axios.get("http://localhost:8081/products/get-product", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setProducts(response.data);
+      } catch (err: any) {
+        console.error("Error fetching products:", err);
+        setError(err.message || "Failed to fetch products");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+  const featuredGifts = MOCK_PRODUCTS.slice(1, 5).reverse();
+  const aiRecommendations = MOCK_PRODUCTS.slice(0, 4);
   return (
     <div className="space-y-8">
       {/* Prominent Search Bar */}
@@ -33,7 +62,10 @@ export default function HomePage() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
            {/* Horizontal scroll on mobile, grid on larger screens */}
-          {aiRecommendations.map((product) => (
+          {loading && <p>Loading AI Recommendations...</p>}
+          {error && <p>Error loading AI Recommendations: {error.message}</p>}
+          {!loading && !error && aiRecommendations.length === 0 && <p>No AI Recommendations found.</p>}
+          {!loading && !error && aiRecommendations.map((product: any) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
@@ -48,7 +80,7 @@ export default function HomePage() {
           </Link>
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
-          {MOCK_OCCASIONS.map((occasion) => (
+          {MOCK_OCCASIONS.map((occasion: any) => (
             <Link key={occasion.id} href={`/occasion/${occasion.id}`} className="block group">
               <Card className="overflow-hidden shadow-subtle hover:shadow-md transition-shadow duration-300 rounded-lg aspect-[3/2] flex flex-col justify-end">
                 <div className="relative w-full h-full">
@@ -81,7 +113,23 @@ export default function HomePage() {
           </Link>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {featuredGifts.map((product) => (
+          {loading && <p>Loading Featured Gifts...</p>}
+          {error && <p>Error loading Featured Gifts: {error.message}</p>}
+          {!loading && !error && featuredGifts.length === 0 && <p>No Featured Gifts found.</p>}
+          {!loading && !error && featuredGifts.map((product: any) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+      </section>
+
+      {/* All Products */}
+      <section>
+        <h2 className="text-2xl font-headline font-semibold text-foreground mb-4">All Products</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {loading && <p>Loading products...</p>}
+          {error && <p>Error loading products: {error.message}</p>}
+          {!loading && !error && products.length === 0 && <p>No products found.</p>}
+          {!loading && !error && products.map((product: any) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

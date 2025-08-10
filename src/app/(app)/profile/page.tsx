@@ -92,9 +92,6 @@ export default function ProfilePage() {
           
           <Separator />
 
-          <Button variant="destructive" className="w-full rounded-md shadow-md hover:shadow-lg transition-all text-lg py-3">
-            <LogOut className="mr-2 h-5 w-5" /> Logout
-          </Button>
         </CardContent>
       </Card>
     </div>

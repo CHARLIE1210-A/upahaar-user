@@ -9,16 +9,50 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Gift, LogIn } from 'lucide-react';
+import { useState } from "react";
 
 export default function LoginPage() {
   const router = useRouter();
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock login logic
-    console.log("Logging in...");
-    // Redirect to home after login
-    router.push('/home');
+
+    const email = (document.getElementById("email") as HTMLInputElement)
+    .value;
+    const password = (document.getElementById("password") as HTMLInputElement)
+    .value;
+    try {
+      const payload = {
+        email: email, 
+        password: password,  
+      };
+  
+      const res = await fetch("http://localhost:8081/api/auth/user/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+  
+      if (!res.ok) {
+        throw new Error("Signup failed");
+      }
+      setIsLoggedIn(true);
+      const data = await res.json();
+      
+      console.log("Token",data.token)
+      if (data.token) {
+        localStorage.setItem("isLoggedIn", "true");  
+        localStorage.setItem("token", data.token);
+      }
+  
+      router.push("/home");
+    } catch (err) {
+      console.error(err);
+      alert("Signup failed. Please try again.");
+    }
   };
   
   const GoogleIcon = () => (

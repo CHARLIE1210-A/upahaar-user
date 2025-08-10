@@ -11,13 +11,47 @@ import { Gift, UserPlus } from 'lucide-react';
 export default function SignupPage() {
   const router = useRouter();
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock signup logic
-    console.log("Signing up...");
-    // Redirect to home after signup
-    router.push('/home');
-  };
+    const name = (document.getElementById("name") as HTMLInputElement)
+    .value;
+    const email = (document.getElementById("email") as HTMLInputElement)
+    .value;
+    const password = (document.getElementById("password") as HTMLInputElement)
+    .value;
+
+  try {
+    const payload = {
+      name: name,
+      email: email, 
+      password: password,  
+    };
+
+    const res = await fetch("http://localhost:8081/api/auth/user/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!res.ok) {
+      throw new Error("Signup failed");
+    }
+
+    const data = await res.json();
+
+    // If backend sends token, store it
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+    }
+
+    router.push("/login");
+  } catch (err) {
+    console.error(err);
+    alert("Signup failed. Please try again.");
+  }
+};
   
   const GoogleIcon = () => (
     <svg className="mr-2 h-4 w-4" viewBox="0 0 48 48">
