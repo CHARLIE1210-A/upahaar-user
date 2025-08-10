@@ -9,7 +9,7 @@ import { usePathname } from 'next/navigation';
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const isMobile = useIsMobile();
   const pathname = usePathname();
-  const noNavPaths = ['/login'];
+  const noNavPaths = ['/login', '/signup'];
 
   if (noNavPaths.includes(pathname)) {
     return <>{children}</>;

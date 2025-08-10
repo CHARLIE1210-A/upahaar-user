@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from 'next/link';
@@ -7,17 +6,16 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Gift, LogIn } from 'lucide-react';
+import { Gift, UserPlus } from 'lucide-react';
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter();
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleSignup = (e: React.FormEvent) => {
     e.preventDefault();
-    // Mock login logic
-    console.log("Logging in...");
-    // Redirect to home after login
+    // Mock signup logic
+    console.log("Signing up...");
+    // Redirect to home after signup
     router.push('/home');
   };
   
@@ -38,28 +36,27 @@ export default function LoginPage() {
             <Gift className="h-8 w-8 text-primary" />
             <span className="text-3xl font-bold font-headline text-primary">Upahaar</span>
           </Link>
-          <CardTitle className="text-2xl font-headline font-semibold text-foreground">Welcome Back!</CardTitle>
+          <CardTitle className="text-2xl font-headline font-semibold text-foreground">Create an Account</CardTitle>
           <CardDescription className="text-muted-foreground">
-            Sign in to continue to your account.
+            Sign up to start finding the perfect gifts.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4 p-6">
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleSignup} className="space-y-4">
+            <div className="space-y-1">
+              <Label htmlFor="name">Full Name</Label>
+              <Input id="name" type="text" placeholder="Alex Doe" required className="rounded-md shadow-sm border-primary/50 focus:ring-primary"/>
+            </div>
             <div className="space-y-1">
               <Label htmlFor="email">Email</Label>
               <Input id="email" type="email" placeholder="you@example.com" required className="rounded-md shadow-sm border-primary/50 focus:ring-primary"/>
             </div>
             <div className="space-y-1">
-               <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <Link href="#" className="text-sm text-primary hover:underline">
-                  Forgot password?
-                </Link>
-              </div>
+              <Label htmlFor="password">Password</Label>
               <Input id="password" type="password" required className="rounded-md shadow-sm border-primary/50 focus:ring-primary" />
             </div>
             <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-lg py-3 rounded-md shadow-md hover:shadow-lg transition-all">
-              <LogIn className="mr-2 h-5 w-5" /> Login
+              <UserPlus className="mr-2 h-5 w-5" /> Sign Up
             </Button>
           </form>
           
@@ -69,22 +66,22 @@ export default function LoginPage() {
             </div>
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-background px-2 text-muted-foreground">
-                Or continue with
+                Or sign up with
               </span>
             </div>
           </div>
 
            <Button variant="outline" className="w-full rounded-md shadow-sm">
              <GoogleIcon />
-             Login with Google
+             Sign Up with Google
           </Button>
 
         </CardContent>
         <CardFooter className="p-6 pt-0 text-center text-sm">
           <p className="text-muted-foreground w-full">
-            Don't have an account?{' '}
-            <Link href="/signup" className="font-semibold text-primary hover:underline">
-              Sign up
+            Already have an account?{' '}
+            <Link href="/login" className="font-semibold text-primary hover:underline">
+              Login
             </Link>
           </p>
         </CardFooter>

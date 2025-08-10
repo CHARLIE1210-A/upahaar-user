@@ -15,7 +15,7 @@ const navItems = [
 
 export default function BottomNavigationBar() {
   const pathname = usePathname();
-  const noNavPaths = ['/login'];
+  const noNavPaths = ['/login', '/signup'];
 
   if (noNavPaths.includes(pathname)) {
     return null;
