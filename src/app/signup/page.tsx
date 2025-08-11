@@ -27,7 +27,7 @@ export default function SignupPage() {
       password: password,  
     };
 
-    const res = await fetch("http://localhost:8081/api/auth/user/register", {
+    const res = await fetch("http://localhost:8085/api/auth/user/register", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
