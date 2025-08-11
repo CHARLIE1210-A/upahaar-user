@@ -14,38 +14,23 @@ import QuantitySelector from '@/components/QuantitySelector';
 import { useCart } from '@/hooks/useCart';
 import { Star, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import productService from '@/services/productService';
+import { useProductById } from "@/hooks/useProductById";
+import { QueryClient } from '@tanstack/react-query';
 
 export default function ProductDetailPage() {
   const params = useParams();
   const router = useRouter();
-  const { addToCart } = useCart();
-  const [product, setProduct] = useState<Product | null>(null);
+  // const dispatch = useCartDispatch();
+
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState<{ [key: string]: string }>({});
   const [giftMessage, setGiftMessage] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  useEffect(() => {
-    if (params.id) {
-      const foundProduct = MOCK_PRODUCTS.find(p => p.id === params.id);
-      if (foundProduct) {
-        setProduct(foundProduct);
-        // Initialize selectedOptions
-        if (foundProduct.options) {
-          const initialOptions: { [key: string]: string } = {};
-          foundProduct.options.forEach(opt => {
-            initialOptions[opt.name] = opt.values[0];
-          });
-          setSelectedOptions(initialOptions);
-        }
-      } else {
-        // Handle product not found, e.g., redirect to a 404 page or home
-        router.push('/home');
-      }
-    }
-  }, [params.id, router]);
-
-  if (!product) {
+  const { data: product, isLoading:loading } = useProductById(params.id);
+  console.log("Data", product)
+  if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
@@ -53,8 +38,12 @@ export default function ProductDetailPage() {
     );
   }
 
+  if (!product) {
+    return null; // or 404 page
+  }
+
   const handleAddToCart = () => {
-    addToCart(product, quantity, selectedOptions, giftMessage);
+    // dispatch({ type: 'ADD', payload: { ...product, qty: quantity, selectedOptions, giftMessage } });
   };
 
   const handleOptionChange = (optionName: string, value: string) => {
@@ -70,6 +59,7 @@ export default function ProductDetailPage() {
   const prevImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
   };
+
 
   return (
     <div className="container mx-auto py-8">
@@ -191,4 +181,12 @@ export default function ProductDetailPage() {
       </Card>
     </div>
   );
+}
+
+export async function HomeProductByIdServer({ params }: any) {
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ["product", params.id],
+    queryFn: productService.getProductById(params.id),
+  });
 }

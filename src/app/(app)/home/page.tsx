@@ -10,35 +10,16 @@ import { MOCK_PRODUCTS, MOCK_OCCASIONS } from '@/lib/constants';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Search, ChevronRight } from 'lucide-react';
 import axios from "axios";
+import { useProducts } from "@/hooks/useProducts";
+import { dehydrate, QueryClient } from "@tanstack/react-query";
+import productService from "@/services/productService";
 
 export default function HomePage() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const token = localStorage.getItem("token"); // Get token from storage
-
-        const response = await axios.get("http://localhost:8081/products/get-product", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setProducts(response.data);
-      } catch (err: any) {
-        console.error("Error fetching products:", err);
-        setError(err.message || "Failed to fetch products");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
+  const { data: products, isLoading: loading, error } = useProducts();
+  // console.log("Data",products)
+  // console.log("Length", products?.length)
   const featuredGifts = MOCK_PRODUCTS.slice(1, 5).reverse();
+
   const aiRecommendations = MOCK_PRODUCTS.slice(0, 4);
   return (
     <div className="space-y-8">
@@ -60,7 +41,7 @@ export default function HomePage() {
             Find More <ChevronRight className="h-4 w-4 ml-1" />
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
            {/* Horizontal scroll on mobile, grid on larger screens */}
           {loading && <p>Loading AI Recommendations...</p>}
           {error && <p>Error loading AI Recommendations: {error.message}</p>}
@@ -79,14 +60,14 @@ export default function HomePage() {
             All Occasions <ChevronRight className="h-4 w-4 ml-1" />
           </Link>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-5 sm:gap-4">
           {MOCK_OCCASIONS.map((occasion: any) => (
             <Link key={occasion.id} href={`/occasion/${occasion.id}`} className="block group">
-              <Card className="overflow-hidden shadow-subtle hover:shadow-md transition-shadow duration-300 rounded-lg aspect-[3/2] flex flex-col justify-end">
+              <Card className="flex flex-col justify-end overflow-hidden rounded-lg shadow-subtle aspect-[3/2] transition-shadow duration-300 hover:shadow-md">
                 <div className="relative w-full h-full">
                    <Image
                     src={occasion.imageUrl}
-                    alt={occasion.name}
+                    alt={`Image for ${occasion.name}`}
                     fill
                     sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 20vw"
                     className="object-cover transition-transform duration-300 group-hover:scale-105"
@@ -112,7 +93,7 @@ export default function HomePage() {
             See All <ChevronRight className="h-4 w-4 ml-1" />
           </Link>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {loading && <p>Loading Featured Gifts...</p>}
           {error && <p>Error loading Featured Gifts: {error.message}</p>}
           {!loading && !error && featuredGifts.length === 0 && <p>No Featured Gifts found.</p>}
@@ -125,15 +106,25 @@ export default function HomePage() {
       {/* All Products */}
       <section>
         <h2 className="text-2xl font-headline font-semibold text-foreground mb-4">All Products</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {loading && <p>Loading products...</p>}
           {error && <p>Error loading products: {error.message}</p>}
-          {!loading && !error && products.length === 0 && <p>No products found.</p>}
-          {!loading && !error && products.map((product: any) => (
+          {!loading && !error && products?.length === 0 && <p>No products found.</p>}
+          {!loading && !error && products?.map((product: any) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </section>
     </div>
   );
+}
+
+
+
+export async function HomePageServer({ params, searchParams }: any) {
+  const queryClient = new QueryClient();
+  await queryClient.prefetchQuery({
+    queryKey: ["products"],
+    queryFn: productService.getAll,
+  });
 }
