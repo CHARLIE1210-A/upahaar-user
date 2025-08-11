@@ -42,7 +42,10 @@ export default function CartPage() {
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
           {cartItems.map(item => (
-            <Card key={`${item.id}-${JSON.stringify(item.selectedOptions)}`} className="flex flex-col sm:flex-row items-center p-4 gap-4 shadow-sm rounded-lg">
+              <Card
+              key={`${item.id}::${item.selectedOptions ? JSON.stringify(item.selectedOptions) : ''}`}
+              className="flex flex-col sm:flex-row items-center p-4 gap-4 shadow-sm rounded-lg"
+            >
               <div className="relative w-24 h-24 sm:w-28 sm:h-28 rounded-md overflow-hidden flex-shrink-0">
                 <Image
                   src={item.imageUrl}
@@ -58,7 +61,7 @@ export default function CartPage() {
                 {item.selectedOptions && Object.entries(item.selectedOptions).map(([key, value]) => (
                   <p key={key} className="text-xs text-muted-foreground">{key}: {value}</p>
                 ))}
-                <p className="text-md font-semibold text-primary mt-1">${item.price.toFixed(2)}</p>
+                <p className="text-md font-semibold text-primary mt-1">${item.price}</p>
               </div>
               <div className="flex flex-col sm:flex-row items-center gap-4 mt-2 sm:mt-0">
                 <QuantitySelector

@@ -1,35 +1,30 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Image from 'next/image';
-import { useParams, useRouter } from 'next/navigation';
-import { MOCK_PRODUCTS } from '@/lib/constants';
-import type { Product } from '@/types';
+import { useParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import QuantitySelector from '@/components/QuantitySelector';
 import { useCart } from '@/hooks/useCart';
 import { Star, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import productService from '@/services/productService';
+import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { useProductById } from "@/hooks/useProductById";
 import { QueryClient } from '@tanstack/react-query';
+import productService from '@/services/productService';
 
 export default function ProductDetailPage() {
   const params = useParams();
-  const router = useRouter();
-  // const dispatch = useCartDispatch();
-
   const [quantity, setQuantity] = useState(1);
   const [selectedOptions, setSelectedOptions] = useState<{ [key: string]: string }>({});
   const [giftMessage, setGiftMessage] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const { data: product, isLoading:loading } = useProductById(params.id);
-  console.log("Data", product)
+  const { addToCart } = useCart();
+  const { data: product, isLoading: loading } = useProductById(params.id);
+
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -42,8 +37,12 @@ export default function ProductDetailPage() {
     return null; // or 404 page
   }
 
+  // Ensure all required options are selected before allowing add to cart
+  const allOptionsSelected = !product.options || product.options.every(opt => selectedOptions[opt.name]);
+
   const handleAddToCart = () => {
-    // dispatch({ type: 'ADD', payload: { ...product, qty: quantity, selectedOptions, giftMessage } });
+    if (!allOptionsSelected) return;
+    addToCart(product, quantity, selectedOptions, giftMessage);
   };
 
   const handleOptionChange = (optionName: string, value: string) => {
@@ -59,7 +58,6 @@ export default function ProductDetailPage() {
   const prevImage = () => {
     setCurrentImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
   };
-
 
   return (
     <div className="container mx-auto py-8">
@@ -129,7 +127,7 @@ export default function ProductDetailPage() {
 
             {product.seller && <p className="text-sm text-muted-foreground">Sold by: <span className="font-medium text-foreground">{product.seller}</span></p>}
 
-            {/* Option Selector */}
+            {/* Option Selector
             {product.options && product.options.map(opt => (
               <div key={opt.name} className="space-y-1.5">
                 <Label htmlFor={opt.name.toLowerCase()} className="text-sm font-medium text-foreground">{opt.name}</Label>
@@ -147,7 +145,7 @@ export default function ProductDetailPage() {
                   </SelectContent>
                 </Select>
               </div>
-            ))}
+            ))} */}
 
             {/* Gift Message */}
             <div className="space-y-1.5">
@@ -173,6 +171,7 @@ export default function ProductDetailPage() {
               size="lg"
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-lg py-3 rounded-md shadow-md hover:shadow-lg transition-all"
               onClick={handleAddToCart}
+              disabled={!allOptionsSelected}
             >
               <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
             </Button>
