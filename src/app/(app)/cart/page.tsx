@@ -10,18 +10,18 @@ import { Separator } from '@/components/ui/separator';
 import { Trash2, ShoppingBag } from 'lucide-react';
 
 export default function CartPage() {
-  const { cartItems, removeFromCart, updateQuantity, cartTotal, cartCount, isCartInitialized } = useCart();
+  const { cartItems, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart(1);
 
   const deliveryFee = cartTotal > 0 ? 5.00 : 0; // Mock delivery fee
   const finalTotal = cartTotal + deliveryFee;
 
-  if (!isCartInitialized) {
-     return (
-      <div className="flex justify-center items-center min-h-[60vh]">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  // if (!isCartInitialized) {
+  //    return (
+  //     <div className="flex justify-center items-center min-h-[60vh]">
+  //       <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
+  //     </div>
+  //   );
+  // }
 
   if (cartItems.length === 0) {
     return (
@@ -66,12 +66,12 @@ export default function CartPage() {
               <div className="flex flex-col sm:flex-row items-center gap-4 mt-2 sm:mt-0">
                 <QuantitySelector
                   quantity={item.quantity}
-                  onQuantityChange={(newQuantity) => updateQuantity(item.id, item.selectedOptions, newQuantity)}
+                  onQuantityChange={(newQuantity) => updateQuantity(item.id, newQuantity, item.selectedOptions, )}
                 />
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => removeFromCart(item.id, item.selectedOptions)}
+                  onClick={() => removeFromCart(item.id)}
                   className="text-destructive hover:bg-destructive/10 rounded-md"
                   aria-label="Remove item"
                 >

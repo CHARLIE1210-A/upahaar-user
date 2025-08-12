@@ -1,125 +1,143 @@
 "use client";
 
 import type { CartItem, Product } from '@/types';
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import apiClient from '@/services/apiClient';
 import { useToast } from '@/hooks/use-toast';
+import { UUID } from 'crypto';
 
-const CART_STORAGE_KEY = 'giftGenieCart';
-
-// Helper to create a unique key for cart items based on id and selectedOptions
-function getCartItemKey(id: string, selectedOptions?: { [key: string]: string }) {
-  return `${id}::${selectedOptions ? JSON.stringify(selectedOptions) : ''}`;
-}
-
-export function useCart() {
+export function useCart(userId: number) {
   const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const { toast } = useToast();
-  const [isCartInitialized, setIsCartInitialized] = useState(false);
-  const isFirstLoad = useRef(true);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Load cart from localStorage on mount
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedCart = localStorage.getItem(CART_STORAGE_KEY);
-      if (storedCart) {
-        setCartItems(JSON.parse(storedCart));
+  // Fetch cart items for the logged-in user
+  const fetchCart = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const response = await apiClient.get(`/cart/cart-items/${userId}`);
+      console.log("res", response.data)
+      if (response.data) {
+        setCartItems(response.data); // data is List<CartItemDTO>
+      } else {
+        throw new Error("Invalid response from server");
       }
-      setIsCartInitialized(true);
+    } catch (error) {
+      console.error('Failed to fetch cart:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load your cart.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  }, [toast, userId]);
 
-  // Persist cart to localStorage when cartItems change (but not on first load)
   useEffect(() => {
-    if (isCartInitialized && typeof window !== 'undefined') {
-      if (isFirstLoad.current) {
-        isFirstLoad.current = false;
-        return;
-      }
-      localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(cartItems));
-    }
-  }, [cartItems, isCartInitialized]);
+    fetchCart();
+  }, [fetchCart]);
 
+  // Add item to cart
   const addToCart = useCallback(
-    (
-      product: Product,
+    async (
+      product: Long,
       quantity: number = 1,
-      selectedOptions?: { [key: string]: string },
+      selectedOptions?: Record<string, string>,
       giftMessage?: string
     ) => {
-      setCartItems(prevItems => {
-        const key = getCartItemKey(product.id, selectedOptions);
-        const existingItemIndex = prevItems.findIndex(
-          item => getCartItemKey(item.id, item.selectedOptions) === key
-        );
+      try {
+        const response = await apiClient.post(`/cart/add-cart/${userId}`, {
+          productId: product,
+          quantity,
+          selectedOptions,
+          giftMessage,
+        });
+        console.log("add", response)
 
-        if (existingItemIndex > -1) {
-          const updatedItems = [...prevItems];
-          updatedItems[existingItemIndex].quantity += quantity;
-          if (giftMessage) updatedItems[existingItemIndex].giftMessage = giftMessage;
-          toast({
-            title: "Added to Cart!",
-            description: `${product.name} quantity updated in your cart.`,
-            variant: "default",
-          });
-          return updatedItems;
-        } else {
+        if (response.status) {
           toast({
             title: "Added to Cart!",
             description: `${product.name} has been added to your cart.`,
-            variant: "default",
           });
-          return [
-            ...prevItems,
-            { ...product, quantity, selectedOptions, giftMessage }
-          ];
+          fetchCart();
+        } else {
+          throw new Error("Failed to add to cart");
         }
-      });
+      } catch (error) {
+        console.error('Failed to add item to cart:', error);
+        toast({
+          title: "Error",
+          description: "Failed to add item to cart.",
+          variant: "destructive",
+        });
+      }
     },
-    [toast]
+    [toast, userId, fetchCart]
   );
 
+  // Remove item from cart
   const removeFromCart = useCallback(
-    (productId: string, itemOptions?: { [key: string]: string }) => {
-      setCartItems(prevItems => {
-        const key = getCartItemKey(productId, itemOptions);
-        const filtered = prevItems.filter(
-          item => getCartItemKey(item.id, item.selectedOptions) !== key
-        );
-        if (filtered.length !== prevItems.length) {
+    async (cartItemId: UUID) => {
+      try {
+        const response = await apiClient.delete(`/cart/remove-cart/${cartItemId}`);
+        console.log("remove", response)
+        if (response.status) {
           toast({
             title: "Item Removed",
             description: "The item has been removed from your cart.",
-            variant: "default",
           });
+          fetchCart();
+        } else {
+          throw new Error("Failed to remove item");
         }
-        return filtered;
-      });
+      } catch (error) {
+        console.error('Failed to remove item from cart:', error);
+        toast({
+          title: "Error",
+          description: "Failed to remove item from cart.",
+          variant: "destructive",
+        });
+      }
     },
-    [toast]
+    [toast, fetchCart]
   );
 
+  // Update quantity
   const updateQuantity = useCallback(
-    (productId: string, itemOptions: { [key: string]: string } | undefined, newQuantity: number) => {
-      setCartItems(prevItems => {
-        const key = getCartItemKey(productId, itemOptions);
-        const updated = prevItems
-          .map(item =>
-            getCartItemKey(item.id, item.selectedOptions) === key
-              ? { ...item, quantity: Math.max(0, newQuantity) }
-              : item
-          )
-          .filter(item => item.quantity > 0);
-        return updated;
-      });
+    async (cartItemId: UUID, quantity: number, selectedOptions?: Record<string, string>, giftMessage?: string) => {
+      if (quantity <= 0) {
+        removeFromCart(cartItemId);
+        return;
+      }
+      console.log("update", cartItemId, quantity, selectedOptions)
+      try {
+        const response = await apiClient.put(`/cart/update-cart/${cartItemId}?quantity=${quantity}`, {
+        });
+        console.log("update", response)
+        if (response.status) {
+          fetchCart();  
+        } else {
+          throw new Error("Failed to update quantity");
+        }
+      } catch (error) {
+        console.error('Failed to update item quantity:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update item quantity.",
+          variant: "destructive",
+        });
+      }
     },
-    []
+    [removeFromCart, toast, fetchCart]
   );
 
+  // Clear cart in UI (local state)
   const clearCart = useCallback(() => {
     setCartItems([]);
   }, []);
 
-  // Memoize derived values
+  // Computed values
   const cartTotal = useMemo(
     () => cartItems.reduce((total, item) => total + item.price * item.quantity, 0),
     [cartItems]
@@ -137,6 +155,6 @@ export function useCart() {
     clearCart,
     cartTotal,
     cartCount,
-    isCartInitialized,
+    isLoading,
   };
 }

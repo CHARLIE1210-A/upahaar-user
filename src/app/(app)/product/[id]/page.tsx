@@ -22,7 +22,7 @@ export default function ProductDetailPage() {
   const [giftMessage, setGiftMessage] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const { addToCart } = useCart();
+  const { addToCart } = useCart(1);
   const { data: product, isLoading: loading } = useProductById(params.id);
 
   if (loading) {
@@ -42,7 +42,7 @@ export default function ProductDetailPage() {
 
   const handleAddToCart = () => {
     if (!allOptionsSelected) return;
-    addToCart(product, quantity, selectedOptions, giftMessage);
+    addToCart(product.id, quantity, selectedOptions, giftMessage);
   };
 
   const handleOptionChange = (optionName: string, value: string) => {
