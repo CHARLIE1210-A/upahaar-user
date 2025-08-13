@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import QuantitySelector from '@/components/QuantitySelector';
-import { useCart } from '@/hooks/useCart';
+import { useCarts } from '@/hooks/useCarts';
 import { Star, ChevronLeft, ChevronRight, ShoppingCart } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { useProductById } from "@/hooks/useProductById";
@@ -22,10 +22,11 @@ export default function ProductDetailPage() {
   const [giftMessage, setGiftMessage] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const { addToCart } = useCart(1);
-  const { data: product, isLoading: loading } = useProductById(params.id);
+  // const { addToCart } = useCart(1);
+  const { addToCart, isLoading : loadingCart } = useCarts(1);
+  const { data: product, isLoading: loadingProduct } = useProductById(params.id);
 
-  if (loading) {
+  if (loadingProduct) {
     return (
       <div className="flex justify-center items-center h-screen">
         <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-primary"></div>
@@ -41,8 +42,15 @@ export default function ProductDetailPage() {
   const allOptionsSelected = !product.options || product.options.every(opt => selectedOptions[opt.name]);
 
   const handleAddToCart = () => {
-    if (!allOptionsSelected) return;
-    addToCart(product.id, quantity, selectedOptions, giftMessage);
+    // if (!allOptionsSelected) return;
+    addToCart(
+      {
+        productId: params.id,             // the product ID you want to add
+        quantity: quantity,                        // quantity you want
+        selectedOptions: { size: 'M' },     // optional object
+        giftMessage: 'Happy Birthday!'      // optional string
+      }
+    );
   };
 
   const handleOptionChange = (optionName: string, value: string) => {
@@ -171,7 +179,7 @@ export default function ProductDetailPage() {
               size="lg"
               className="w-full bg-primary hover:bg-primary/90 text-primary-foreground text-lg py-3 rounded-md shadow-md hover:shadow-lg transition-all"
               onClick={handleAddToCart}
-              disabled={!allOptionsSelected}
+              // disabled={!allOptionsSelected}
             >
               <ShoppingCart className="mr-2 h-5 w-5" /> Add to Cart
             </Button>

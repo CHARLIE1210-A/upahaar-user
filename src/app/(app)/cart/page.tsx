@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useCart } from '@/hooks/useCart';
+import { useCarts } from '@/hooks/useCarts';
 import QuantitySelector from '@/components/QuantitySelector';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,10 +10,8 @@ import { Separator } from '@/components/ui/separator';
 import { Trash2, ShoppingBag } from 'lucide-react';
 
 export default function CartPage() {
-  const { cartItems, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart(1);
-
-  const deliveryFee = cartTotal > 0 ? 5.00 : 0; // Mock delivery fee
-  const finalTotal = cartTotal + deliveryFee;
+  // const { cartItems, removeFromCart, updateQuantity, cartTotal, cartCount } = useCart(1);
+  const { addToCart, isLoading, cartItems, removeFromCart, updateQuantity } = useCarts(1);
 
   // if (!isCartInitialized) {
   //    return (
@@ -23,7 +21,7 @@ export default function CartPage() {
   //   );
   // }
 
-  if (cartItems.length === 0) {
+  if (isLoading) {
     return (
       <div className="text-center py-16">
         <ShoppingBag className="mx-auto h-24 w-24 text-muted-foreground mb-6" />
@@ -35,13 +33,18 @@ export default function CartPage() {
       </div>
     );
   }
+  console.log("cart", cartItems.data)
+  const cartCount = (cartItems.data ?? []).reduce((total, item) => total + ((item?.price ?? 0) * (item?.quantity ?? 0)), 0);
+  const cartTotal = (cartItems.data ?? []).reduce((count, item) => count + (item.quantity ?? 0), 0)
 
+  const deliveryFee = cartTotal > 0 ? 5.00 : 0; // Mock delivery fee
+  const finalTotal = cartTotal + deliveryFee;
   return (
     <div className="container mx-auto py-8">
       <h1 className="text-3xl md:text-4xl font-headline font-bold mb-8 text-center text-foreground">Your Shopping Cart</h1>
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2 space-y-4">
-          {cartItems.map(item => (
+          {cartItems.data?.map(item => (
               <Card
               key={`${item.id}::${item.selectedOptions ? JSON.stringify(item.selectedOptions) : ''}`}
               className="flex flex-col sm:flex-row items-center p-4 gap-4 shadow-sm rounded-lg"
@@ -66,7 +69,7 @@ export default function CartPage() {
               <div className="flex flex-col sm:flex-row items-center gap-4 mt-2 sm:mt-0">
                 <QuantitySelector
                   quantity={item.quantity}
-                  onQuantityChange={(newQuantity) => updateQuantity(item.id, newQuantity, item.selectedOptions, )}
+                  onQuantityChange={(newQuantity) => updateQuantity({ cartItemId: item.id, quantity: newQuantity })}
                 />
                 <Button
                   variant="ghost"
